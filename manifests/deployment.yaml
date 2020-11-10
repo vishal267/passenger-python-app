@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 40
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  minReadySeconds: 10
+  selector:
+     matchLabels: 
+        app: hello-app
+  template:
+    metadata:
+      labels:
+        app: hello-app
+    spec:
+      containers:
+      - name: hello-app
+        image: asia.gcr.io/vishal-293614/app:latest
+        command: []
+        args: []
+        ports:
+        - name: http-port
+          containerPort: 80
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "20m"
+          limits:
+            memory: "100Mi"
+            cpu: "50m"
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http-port
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http-port
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
